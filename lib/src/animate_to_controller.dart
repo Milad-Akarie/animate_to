@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'animatable.dart';
+import 'animate_from.dart';
 
 class AnimateToController {
-  final _animationsController = StreamController<GlobalKey<AnimatableState>>();
-  final _generatedKeys = <Object, GlobalKey<AnimatableState>>{};
+  final _animationsController = StreamController<GlobalKey<AnimateFromState>>();
+  final _generatedKeys = <Object, GlobalKey<AnimateFromState>>{};
 
-  GlobalKey<AnimatableState> tag(Object key) {
-    return _generatedKeys[key] ??= GlobalKey<AnimatableState>();
+  GlobalKey<AnimateFromState> tag(Object key) {
+    return _generatedKeys[key] ??= GlobalKey<AnimateFromState>();
   }
 
-  void animate(GlobalKey<AnimatableState> tag) {
+  void animate(GlobalKey<AnimateFromState> tag) {
     _animationsController.add(tag);
   }
 
@@ -18,7 +18,7 @@ class AnimateToController {
     _animationsController.add(tag(targetTag));
   }
 
-  Stream<GlobalKey<AnimatableState>> get stream => _animationsController.stream;
+  Stream<GlobalKey<AnimateFromState>> get stream => _animationsController.stream.asBroadcastStream();
 
   void dispose() {
     _animationsController.close();

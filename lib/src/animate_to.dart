@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:animate_to/src/animatable.dart';
+import 'package:animate_to/src/animate_from.dart';
 import 'package:animate_to/src/animate_to_controller.dart';
 import 'package:flutter/material.dart';
 
@@ -10,13 +10,13 @@ typedef AnimationBuilder = Widget Function(
   Animation<double> animation,
 );
 
-class AnimateToTarget<T> extends StatefulWidget {
-  const AnimateToTarget({
+class AnimateTo<T> extends StatefulWidget {
+  const AnimateTo({
     super.key,
     required this.child,
     required this.controller,
     this.animationDuration = const Duration(milliseconds: 300),
-    this.animatableAnimationDuration = const Duration(milliseconds: 1000),
+    this.animateFromAnimationDuration = const Duration(milliseconds: 1000),
     this.curve = Curves.easeInOut,
     this.builder = _defaultBuilder,
     this.onArrival,
@@ -26,7 +26,7 @@ class AnimateToTarget<T> extends StatefulWidget {
   final Widget child;
   final AnimateToController controller;
   final Duration animationDuration;
-  final Duration animatableAnimationDuration;
+  final Duration animateFromAnimationDuration;
   final Curve curve;
   final AnimationBuilder builder;
   final ValueChanged<T>? onArrival;
@@ -41,10 +41,10 @@ class AnimateToTarget<T> extends StatefulWidget {
   }
 
   @override
-  State<AnimateToTarget> createState() => _AnimateToTargetState<T>();
+  State<AnimateTo> createState() => _AnimateToState<T>();
 }
 
-class _AnimateToTargetState<T> extends State<AnimateToTarget<T>> with TickerProviderStateMixin {
+class _AnimateToState<T> extends State<AnimateTo<T>> with TickerProviderStateMixin {
   AnimateToController get controller => widget.controller;
   StreamSubscription? _streamSubscription;
   late final _targetAnimationController = AnimationController(
@@ -61,17 +61,21 @@ class _AnimateToTargetState<T> extends State<AnimateToTarget<T>> with TickerProv
     });
   }
 
-  void _animateOverlaid(GlobalKey<AnimatableState> key) {
+  void _animateOverlaid(GlobalKey<AnimateFromState> key) {
     final animatableState = key.currentState;
     final targetBox = context.findRenderObject() as RenderBox?;
     if (animatableState != null && targetBox != null) {
-      final targetPosition = targetBox.localToGlobal(Offset.zero);
       final animatableBox = animatableState.context.findRenderObject() as RenderBox;
+      final targetPosition = targetBox.localToGlobal(Offset.zero).translate(
+            (targetBox.size.width / 2) - animatableBox.size.width / 2,
+            (targetBox.size.height / 2) - animatableBox.size.height / 2,
+          );
       final animatablePosition = animatableBox.localToGlobal(Offset.zero);
+
       assert(animatableState.mounted);
       final entryAnimationController = AnimationController(
         vsync: this,
-        duration: widget.animatableAnimationDuration,
+        duration: widget.animateFromAnimationDuration,
       );
       final entry = OverlayEntry(builder: (_) {
         final curvedAnimation = CurvedAnimation(
@@ -101,9 +105,7 @@ class _AnimateToTargetState<T> extends State<AnimateToTarget<T>> with TickerProv
         entryAnimationController.removeListener(entry.markNeedsBuild);
         entry.remove();
       }
-
       entryAnimationController.addListener(entry.markNeedsBuild);
-
       entryAnimationController.addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           widget.onArrival?.call(animatableState.value as T);
