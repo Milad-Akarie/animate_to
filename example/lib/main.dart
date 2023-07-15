@@ -111,8 +111,27 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
         ],
       ),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          AnimateTo(
+            controller: _animateToController,
+            child: // cart icon,
+            builder: (context, child, animation) {
+              return Transform.scale(
+                scale: _circleAnimationSequence.animate(animation).value,
+                child: child,
+              );
+            }
+          ),
+          const SizedBox(height: 100),
+          AnimateFrom(
+            key: _animateToController.tag('animate1'),
+            child: const Text('Animatable'),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {},
+            child: const Text('Animate'),
+          ),
           Expanded(
             child: Center(
               child: SizedBox(
@@ -224,3 +243,5 @@ class Circle extends StatelessWidget {
     );
   }
 }
+
+
