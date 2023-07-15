@@ -36,6 +36,21 @@ class MyHomeScreen extends StatefulWidget {
 class _MyHomeScreenState extends State<MyHomeScreen> {
   final _animateToController = AnimateToController();
 
+  final _circleAnimationSequence = TweenSequence<double>([
+    TweenSequenceItem<double>(
+      tween: Tween(begin: 1, end: 3),
+      weight: 40,
+    ),
+    TweenSequenceItem<double>(
+      tween: Tween(begin: 3, end: .2),
+      weight: 40,
+    ),
+    TweenSequenceItem<double>(
+      tween: Tween(begin: .2, end: 1),
+      weight: 20,
+    ),
+  ]);
+
   @override
   void dispose() {
     _animateToController.dispose();
@@ -93,46 +108,43 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
             Expanded(
               child: Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    AnimateTo<Color>(
+                    AnimateTo(
                       controller: _animateToController,
-                      onArrival: (value) {
-                        setState(() {
-                          targetColor = Color.lerp(targetColor, value, .5)!;
-                        });
-                      },
-                      builder: (context, child, animation) {
-                        return Transform.translate(
-                          offset: Offset( sin(animation.value * 3 * pi) * 3,0),
-                          child: child,
-                        );
-                      },
-                      child: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: targetColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
+                      child: const Text('Target'),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        for (int i = 0; i < 3; i++)
-                          AnimateFrom<Color>(
+                    const SizedBox(height: 160),
+                    AnimateFrom(
+                      key: _animateToController.tag('Animatable'),
+                      child: const Text('Animatable'),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      child: const Text('Animate'),
+                      onPressed: () {
+                        _animateToController.animateTag('Animatable');
+                      },
+                    ),
+
+
+
+                    if (false)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          for (int i = 0; i < 3; i++)
+                            AnimateFrom<Color>(
                               value: [Colors.red, Colors.green, Colors.orange][i],
                               key: _animateToController.tag(i),
                               builder: (context, child, animation) {
                                 return Opacity(
                                   opacity: .8,
-                                  child: ScaleTransition(scale: animation.sequence<double>().add(
-                                      begin: 1, end: 3, weight: 40)
-                                      .add(begin: 3, end: .2, weight: 40)
-                                      .add(begin: .2, end: 1, weight: 20)
-                                      .animate(), child: child,),
+                                  child: ScaleTransition(
+                                    scale: _circleAnimationSequence.animate(animation),
+                                    child: child,
+                                  ),
                                 );
                               },
                               child: InkWell(
@@ -148,66 +160,65 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
                                   ),
                                 ),
                               ),
-
-                          ),
-                      ],
-                    ),
+                            ),
+                        ],
+                      ),
                   ],
                 ),
               ),
             ),
-            if (false)
-              ListView.builder(
-                itemCount: 20,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      title: Text("Item $index"),
-                      subtitle: Text("Subtitle $index"),
-                      leading: AnimateFrom<int>(
-                          value: index,
-                          key: _animateToController.tag(index),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              'https://picsum.photos/100/100?random=$index',
-                            ),
-                          ),
-                          builder: (_, child, animation) {
-                            return Opacity(
-                              opacity: .7,
-                              child: Transform.translate(
-                                offset: animation.evaluate(begin: Offset.zero, end: const Offset(-10, -10)),
-                                child: ScaleTransition(
-                                  alignment: Alignment.center,
-                                  scale: animation
-                                      .sequence<double>()
-                                      .add(begin: 1, end: 2, weight: 50)
-                                      .add(begin: 2, end: .3, weight: 50)
-                                      .animate(),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadiusTween(
-                                      begin: BorderRadius.circular(8),
-                                      end: BorderRadius.circular(50),
-                                    ).evaluate(animation),
-                                    child: child,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
-                      trailing: IconButton(
-                        icon: const Icon(
-                          Icons.add_shopping_cart_outlined,
-                        ),
-                        onPressed: () {
-                          _animateToController.animateTag(index);
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
+            // if (false)
+            //   ListView.builder(
+            //     itemCount: 20,
+            //     itemBuilder: (context, index) {
+            //       return Card(
+            //         child: ListTile(
+            //           title: Text("Item $index"),
+            //           subtitle: Text("Subtitle $index"),
+            //           leading: AnimateFrom<int>(
+            //               value: index,
+            //               key: _animateToController.tag(index),
+            //               child: ClipRRect(
+            //                 borderRadius: BorderRadius.circular(8),
+            //                 child: Image.network(
+            //                   'https://picsum.photos/100/100?random=$index',
+            //                 ),
+            //               ),
+            //               builder: (_, child, animation) {
+            //                 return Opacity(
+            //                   opacity: .7,
+            //                   child: Transform.translate(
+            //                     offset: animation.evaluate(begin: Offset.zero, end: const Offset(-10, -10)),
+            //                     child: ScaleTransition(
+            //                       alignment: Alignment.center,
+            //                       scale: animation
+            //                           .sequence<double>()
+            //                           .add(begin: 1, end: 2, weight: 50)
+            //                           .add(begin: 2, end: .3, weight: 50)
+            //                           .animate(),
+            //                       child: ClipRRect(
+            //                         borderRadius: BorderRadiusTween(
+            //                           begin: BorderRadius.circular(8),
+            //                           end: BorderRadius.circular(50),
+            //                         ).evaluate(animation),
+            //                         child: child,
+            //                       ),
+            //                     ),
+            //                   ),
+            //                 );
+            //               }),
+            //           trailing: IconButton(
+            //             icon: const Icon(
+            //               Icons.add_shopping_cart_outlined,
+            //             ),
+            //             onPressed: () {
+            //               _animateToController.animateTag(index);
+            //             },
+            //           ),
+            //         ),
+            //       );
+            //     },
+            //   ),
           ],
         ),
       ),

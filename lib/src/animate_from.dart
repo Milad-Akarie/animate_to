@@ -1,4 +1,5 @@
 import 'package:animate_to/animate_to.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AnimateFrom<T> extends StatefulWidget {
@@ -11,21 +12,24 @@ class AnimateFrom<T> extends StatefulWidget {
 
   final T? value;
 
-  static Widget _defaultBuilder(BuildContext context, Widget child, Animation<double> animation) {
+  static final _defaultSequence = TweenSequence<double>([
+    TweenSequenceItem<double>(
+      tween: Tween(begin: 1, end: 3),
+      weight: 50,
+    ),
+    TweenSequenceItem<double>(
+      tween: Tween(begin: 3, end: .2),
+      weight: 50,
+    ),
+  ]);
+
+  static Widget _defaultBuilder(
+    BuildContext context,
+    Widget child,
+    Animation<double> animation,
+  ) {
     return ScaleTransition(
-      scale: animation
-          .sequence<double>()
-          .add(
-            begin: 1,
-            end: 3,
-            weight: 50,
-          )
-          .add(
-            begin: 3,
-            end: .2,
-            weight: 50,
-          )
-          .animate(),
+      scale: _defaultSequence.animate(animation),
       child: child,
     );
   }
@@ -52,5 +56,11 @@ class AnimateFromState<T> extends State<AnimateFrom<T>> {
         ),
       ),
     );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<T>('value', value));
   }
 }
