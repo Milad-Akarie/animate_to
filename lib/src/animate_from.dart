@@ -40,6 +40,7 @@ class AnimateFrom<T> extends StatefulWidget {
 
   /// The widget to be animated
   final Widget child;
+
   /// The animation builder
   final AnimationBuilder builder;
 
@@ -56,7 +57,7 @@ class AnimateFromState<T> extends State<AnimateFrom<T>> {
   T? get value => widget.value;
 
   /// The animation builder
-  Widget buildAnimated(BuildContext context,Animation<double> animation) {
+  Widget buildAnimated(BuildContext context, Animation<double> animation) {
     return ExcludeFocus(
       child: IgnorePointer(
         child: Material(

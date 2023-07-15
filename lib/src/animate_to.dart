@@ -12,8 +12,8 @@ typedef AnimationBuilder = Widget Function(
 /// The target widget to be animated to.
 class AnimateTo<T> extends StatefulWidget {
   /// default constructor
-   AnimateTo({
-     Key? key,
+  AnimateTo({
+    Key? key,
     required this.child,
     required this.controller,
     this.arrivalAnimationDuration = const Duration(milliseconds: 300),
@@ -21,7 +21,7 @@ class AnimateTo<T> extends StatefulWidget {
     this.builder = _defaultBuilder,
     this.onArrival,
     this.useRootOverlay = true,
-  }):super(key: key ?? GlobalObjectKey(controller));
+  }) : super(key: key ?? GlobalObjectKey(controller));
 
   /// The widget to be animated to
   final Widget child;
@@ -60,7 +60,8 @@ class AnimateTo<T> extends StatefulWidget {
 }
 
 /// The state of the [AnimateTo] widget.
-class AnimateToState<T> extends State<AnimateTo<T>> with TickerProviderStateMixin {
+class AnimateToState<T> extends State<AnimateTo<T>>
+    with TickerProviderStateMixin {
   AnimateToController get _controller => widget.controller;
   late final _targetAnimationController = AnimationController(
     duration: widget.arrivalAnimationDuration,
@@ -84,7 +85,8 @@ class AnimateToState<T> extends State<AnimateTo<T>> with TickerProviderStateMixi
     final animatableState = input.key.currentState;
     final targetBox = context.findRenderObject() as RenderBox?;
     if (animatableState != null && targetBox != null) {
-      final animatableBox = animatableState.context.findRenderObject() as RenderBox;
+      final animatableBox =
+          animatableState.context.findRenderObject() as RenderBox;
       final targetPosition = targetBox.localToGlobal(Offset.zero).translate(
             (targetBox.size.width / 2) - animatableBox.size.width / 2,
             (targetBox.size.height / 2) - animatableBox.size.height / 2,
@@ -160,10 +162,15 @@ class AnimateToState<T> extends State<AnimateTo<T>> with TickerProviderStateMixi
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<AnimateToController>('controller', _controller));
-    properties.add(DiagnosticsProperty<Duration>('arrivalAnimationDuration', widget.arrivalAnimationDuration));
-    properties.add(DiagnosticsProperty<Curve>('arrivalAnimationCurve', widget.arrivalAnimationCurve));
-    properties.add(DiagnosticsProperty<AnimationBuilder>('builder', widget.builder));
-    properties.add(DiagnosticsProperty<bool>('useRootOverlay', widget.useRootOverlay));
+    properties.add(
+        DiagnosticsProperty<AnimateToController>('controller', _controller));
+    properties.add(DiagnosticsProperty<Duration>(
+        'arrivalAnimationDuration', widget.arrivalAnimationDuration));
+    properties.add(DiagnosticsProperty<Curve>(
+        'arrivalAnimationCurve', widget.arrivalAnimationCurve));
+    properties
+        .add(DiagnosticsProperty<AnimationBuilder>('builder', widget.builder));
+    properties.add(
+        DiagnosticsProperty<bool>('useRootOverlay', widget.useRootOverlay));
   }
 }

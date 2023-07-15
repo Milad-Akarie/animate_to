@@ -62,36 +62,36 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
-            Badge(
-              label: Text(
-                "$_itemsCount",
-                style: const TextStyle(fontSize: 10),
-              ),
-              largeSize: 14,
-              isLabelVisible: _itemsCount > 0,
-              alignment: AlignmentDirectional.bottomStart,
-              child: AnimateTo<int>(
-                controller: _animateToController,
-                onArrival: (value) {
-                  setState(() {
-                    _itemsCount++;
-                  });
-                },
-                builder: (context, child, animation) {
-                  return Transform.translate(
-                    offset: Offset(sin(animation.value * 3 * pi) * 3, 0),
-                    child: child,
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Icon(
-                    Icons.shopping_bag,
-                    color: Theme.of(context).primaryColor,
-                  ),
+          Badge(
+            label: Text(
+              "$_itemsCount",
+              style: const TextStyle(fontSize: 10),
+            ),
+            largeSize: 14,
+            isLabelVisible: _itemsCount > 0,
+            alignment: AlignmentDirectional.bottomStart,
+            child: AnimateTo<int>(
+              controller: _animateToController,
+              onArrival: (value) {
+                setState(() {
+                  _itemsCount++;
+                });
+              },
+              builder: (context, child, animation) {
+                return Transform.translate(
+                  offset: Offset(sin(animation.value * 3 * pi) * 3, 0),
+                  child: child,
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Icon(
+                  Icons.shopping_bag,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),
+          ),
         ],
       ),
       body: ListView.builder(
@@ -141,4 +141,3 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
     );
   }
 }
-
