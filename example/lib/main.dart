@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomeScreen(title: 'Animate-to demo'),
+      home: const MyHomeScreen(title: 'Animate-to'),
     );
   }
 }
@@ -51,6 +51,17 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
     ),
   ]);
 
+  static final _scaleTransactionSequence = TweenSequence<double>([
+    TweenSequenceItem<double>(
+      tween: Tween(begin: 1, end: 3),
+      weight: 50,
+    ),
+    TweenSequenceItem<double>(
+      tween: Tween(begin: 3, end: .2),
+      weight: 50,
+    ),
+  ]);
+
   @override
   void dispose() {
     _animateToController.dispose();
@@ -66,161 +77,149 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
-          // Badge(
-          //   label: Text(
-          //     "$_itemsCount",
-          //     style: const TextStyle(fontSize: 10),
-          //   ),
-          //   largeSize: 14,
-          //   alignment: AlignmentDirectional.bottomStart,
-          //   child: AnimateTo<int>(
-          //     controller: _animateToController,
-          //     animationDuration: const Duration(milliseconds: 400),
-          //     animateFromAnimationDuration: const Duration(milliseconds: 1000),
-          //     onArrival: (value) {
-          //       setState(() {
-          //         _itemsCount++;
-          //       });
-          //     },
-          //     builder: (context, child, animation) {
-          //       return Transform.translate(
-          //         offset: Offset(sin(animation.value * 3 * pi) * 3, 0),
-          //         child: child,
-          //       );
-          //     },
-          //     child: Padding(
-          //       padding: const EdgeInsets.all(6.0),
-          //       child: Icon(
-          //         Icons.shopping_bag,
-          //         color: Theme.of(context).primaryColor,
-          //       ),
-          //     ),
-          //   ),
-          // ),
+          if (false)
+            Badge(
+              label: Text(
+                "$_itemsCount",
+                style: const TextStyle(fontSize: 10),
+              ),
+              largeSize: 14,
+              isLabelVisible: _itemsCount > 0,
+              alignment: AlignmentDirectional.bottomStart,
+              child: AnimateTo<int>(
+                controller: _animateToController,
+                onArrival: (value) {
+                  setState(() {
+                    _itemsCount++;
+                  });
+                },
+                builder: (context, child, animation) {
+                  return Transform.translate(
+                    offset: Offset(sin(animation.value * 3 * pi) * 3, 0),
+                    child: child,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Icon(
+                    Icons.shopping_bag,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
-      body: SizedBox(
-        height: 600,
-        width: 300,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Center(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Center(
+              child: SizedBox(
+                height: 320,
+                width: 240,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    AnimateTo(
+                    AnimateTo<Color>(
                       controller: _animateToController,
-                      child: const Text('Target'),
-                    ),
-                    const SizedBox(height: 160),
-                    AnimateFrom(
-                      key: _animateToController.tag('Animatable'),
-                      child: const Text('Animatable'),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      child: const Text('Animate'),
-                      onPressed: () {
-                        _animateToController.animateTag('Animatable');
+                      child: Circle(size: 100, color: targetColor),
+                      onArrival: (color) {
+                        setState(() {
+                          targetColor = Color.lerp(targetColor, color, .5)!;
+                        });
                       },
                     ),
-
-
-
-                    if (false)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          for (int i = 0; i < 3; i++)
-                            AnimateFrom<Color>(
-                              value: [Colors.red, Colors.green, Colors.orange][i],
-                              key: _animateToController.tag(i),
-                              builder: (context, child, animation) {
-                                return Opacity(
-                                  opacity: .8,
-                                  child: ScaleTransition(
-                                    scale: _circleAnimationSequence.animate(animation),
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              child: InkWell(
-                                onTap: () {
-                                  _animateToController.animateTag(i);
-                                },
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: [Colors.red, Colors.green, Colors.orange][i],
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        for (int i = 0; i < 3; i++)
+                          AnimateFrom<Color>(
+                            value: [Colors.red, Colors.green, Colors.orange][i],
+                            key: _animateToController.tag(i),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(24),
+                              onTap: () => _animateToController.animateTag(i),
+                              child: Circle(
+                                size: 50,
+                                color: [Colors.red, Colors.green, Colors.orange][i].withOpacity(.85),
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ),
-            // if (false)
-            //   ListView.builder(
-            //     itemCount: 20,
-            //     itemBuilder: (context, index) {
-            //       return Card(
-            //         child: ListTile(
-            //           title: Text("Item $index"),
-            //           subtitle: Text("Subtitle $index"),
-            //           leading: AnimateFrom<int>(
-            //               value: index,
-            //               key: _animateToController.tag(index),
-            //               child: ClipRRect(
-            //                 borderRadius: BorderRadius.circular(8),
-            //                 child: Image.network(
-            //                   'https://picsum.photos/100/100?random=$index',
-            //                 ),
-            //               ),
-            //               builder: (_, child, animation) {
-            //                 return Opacity(
-            //                   opacity: .7,
-            //                   child: Transform.translate(
-            //                     offset: animation.evaluate(begin: Offset.zero, end: const Offset(-10, -10)),
-            //                     child: ScaleTransition(
-            //                       alignment: Alignment.center,
-            //                       scale: animation
-            //                           .sequence<double>()
-            //                           .add(begin: 1, end: 2, weight: 50)
-            //                           .add(begin: 2, end: .3, weight: 50)
-            //                           .animate(),
-            //                       child: ClipRRect(
-            //                         borderRadius: BorderRadiusTween(
-            //                           begin: BorderRadius.circular(8),
-            //                           end: BorderRadius.circular(50),
-            //                         ).evaluate(animation),
-            //                         child: child,
-            //                       ),
-            //                     ),
-            //                   ),
-            //                 );
-            //               }),
-            //           trailing: IconButton(
-            //             icon: const Icon(
-            //               Icons.add_shopping_cart_outlined,
-            //             ),
-            //             onPressed: () {
-            //               _animateToController.animateTag(index);
-            //             },
-            //           ),
-            //         ),
-            //       );
-            //     },
-            //   ),
-          ],
-        ),
+          ),
+          if (false)
+            Expanded(
+              child: ListView.builder(
+                itemCount: 20,
+                padding: const EdgeInsets.all(8),
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: ListTile(
+                      title: Text("Item $index"),
+                      subtitle: Text("Subtitle $index"),
+                      leading: AnimateFrom<int>(
+                          value: index,
+                          key: _animateToController.tag(index),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              'https://picsum.photos/100/100?random=$index',
+                            ),
+                          ),
+                          builder: (_, child, animation) {
+                            return Opacity(
+                              opacity: .85,
+                              child: ScaleTransition(
+                                scale: _scaleTransactionSequence.animate(animation),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadiusTween(
+                                    begin: BorderRadius.circular(8),
+                                    end: BorderRadius.circular(50),
+                                  ).evaluate(animation),
+                                  child: child,
+                                ),
+                              ),
+                            );
+                          }),
+                      trailing: IconButton(
+                        icon: const Icon(
+                          Icons.add_shopping_cart_outlined,
+                        ),
+                        onPressed: () {
+                          _animateToController.animateTag(index);
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class Circle extends StatelessWidget {
+  const Circle({super.key, required this.size, required this.color});
+
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
       ),
     );
   }

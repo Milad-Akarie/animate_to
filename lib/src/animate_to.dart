@@ -1,18 +1,19 @@
-import 'dart:async';
-
 import 'package:animate_to/src/animate_to_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+/// a signature for the animation builder.
 typedef AnimationBuilder = Widget Function(
   BuildContext context,
   Widget child,
   Animation<double> animation,
 );
 
+/// The target widget to be animated to.
 class AnimateTo<T> extends StatefulWidget {
-  const AnimateTo({
-    super.key,
+  /// default constructor
+   AnimateTo({
+     Key? key,
     required this.child,
     required this.controller,
     this.arrivalAnimationDuration = const Duration(milliseconds: 300),
@@ -20,14 +21,30 @@ class AnimateTo<T> extends StatefulWidget {
     this.builder = _defaultBuilder,
     this.onArrival,
     this.useRootOverlay = true,
-  });
+  }):super(key: key ?? GlobalObjectKey(controller));
 
+  /// The widget to be animated to
   final Widget child;
+
+  /// The animation trigger controller
   final AnimateToController controller;
+
+  /// When the animation is triggered, the [AnimateTo] widget will animate on
+  /// the end of animated widget's animation. This is the duration of that animation.
   final Duration arrivalAnimationDuration;
+
+  /// When the animation is triggered, the [AnimateTo] widget will animate on
+  /// the end of animated widget's animation. This is the curve of that animation.
   final Curve arrivalAnimationCurve;
+
+  /// The animation builder
   final AnimationBuilder builder;
+
+  /// A callback that's called when the animated widget's animation
+  /// is done.
   final ValueChanged<T>? onArrival;
+
+  /// Whether to use the root overlay or the local overlay.
   final bool useRootOverlay;
 
   static Widget _defaultBuilder(
@@ -39,27 +56,27 @@ class AnimateTo<T> extends StatefulWidget {
   }
 
   @override
-  State<AnimateTo> createState() => _AnimateToState<T>();
+  State<AnimateTo> createState() => AnimateToState<T>();
 }
 
-class _AnimateToState<T> extends State<AnimateTo<T>> with TickerProviderStateMixin {
-  AnimateToController get controller => widget.controller;
-  StreamSubscription? _streamSubscription;
+/// The state of the [AnimateTo] widget.
+class AnimateToState<T> extends State<AnimateTo<T>> with TickerProviderStateMixin {
+  AnimateToController get _controller => widget.controller;
   late final _targetAnimationController = AnimationController(
     duration: widget.arrivalAnimationDuration,
     vsync: this,
   );
-
   late final _targetAnimation = CurvedAnimation(
     parent: _targetAnimationController,
     curve: widget.arrivalAnimationCurve,
   );
+
   @override
   void initState() {
     super.initState();
-    _streamSubscription = controller.stream.listen((key) {
+    _controller.listen(this, (input) {
       if (!mounted) return;
-      _animateOverlaid(key);
+      _animateOverlaid(input);
     });
   }
 
@@ -93,7 +110,7 @@ class _AnimateToState<T> extends State<AnimateTo<T>> with TickerProviderStateMix
           top: posAnimation.dy,
           width: animatableBox.size.width,
           height: animatableBox.size.height,
-          child: animatableState.buildAnimated(curvedAnimation),
+          child: animatableState.buildAnimated(context, curvedAnimation),
         );
       });
 
@@ -107,6 +124,7 @@ class _AnimateToState<T> extends State<AnimateTo<T>> with TickerProviderStateMix
         entryAnimationController.removeListener(entry.markNeedsBuild);
         entry.remove();
       }
+
       entryAnimationController.addListener(entry.markNeedsBuild);
       entryAnimationController.addStatusListener((status) {
         if (status == AnimationStatus.completed) {
@@ -121,7 +139,6 @@ class _AnimateToState<T> extends State<AnimateTo<T>> with TickerProviderStateMix
 
   @override
   void dispose() {
-    _streamSubscription?.cancel();
     _targetAnimationController.dispose();
     super.dispose();
   }
@@ -130,22 +147,20 @@ class _AnimateToState<T> extends State<AnimateTo<T>> with TickerProviderStateMix
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _targetAnimation,
-      builder: (context, child) {
+      builder: (context, _) {
         return widget.builder(
           context,
-          child!,
+          widget.child,
           _targetAnimation,
         );
       },
-      child: widget.child,
     );
   }
-
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<AnimateToController>('controller', controller));
+    properties.add(DiagnosticsProperty<AnimateToController>('controller', _controller));
     properties.add(DiagnosticsProperty<Duration>('arrivalAnimationDuration', widget.arrivalAnimationDuration));
     properties.add(DiagnosticsProperty<Curve>('arrivalAnimationCurve', widget.arrivalAnimationCurve));
     properties.add(DiagnosticsProperty<AnimationBuilder>('builder', widget.builder));
